@@ -1,4 +1,4 @@
-var backendHost = 'http://localhost:8080/health';
+var backendHost = 'http://localhost:8080/health'; //На ПРОМ сервере указать адрес сервера где развернёт бэк
 var activeSymbol = '&#9989;';
 var passiveSymbol = '&#10060;';
 
