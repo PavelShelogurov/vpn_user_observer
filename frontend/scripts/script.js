@@ -1,4 +1,4 @@
-var backendHost = 'http://localhost:8080/health'; //На ПРОМ сервере указать адрес сервера где развернёт бэк
+var backendHost = 'http://localhost:8080/health'; //На ПРОМ сервере указать адрес сервера где развернут бэк
 var activeSymbol = '&#9989;';
 var passiveSymbol = '&#10060;';
 
@@ -10,6 +10,7 @@ function checkActiveUsers() {
         response => {
             response.json().then(
                 json => {
+                    deleteLoading();
                     var arrayLength = json.length;
                     for (var i = 0; i < arrayLength; i++) {
                         drawUsersBlock(json[i]);
@@ -20,8 +21,15 @@ function checkActiveUsers() {
 
         }
     ).catch(
-        error => fatalError()
+        error => {
+            deleteLoading();
+            fatalError();
+        }
     )
+}
+
+function deleteLoading(){
+    document.getElementById('loadingGIF').remove();
 }
 
 function drawUsersBlock(userInfo) {
