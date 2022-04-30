@@ -18,6 +18,19 @@ public class UsersPinger {
     @Value("${health.check.timeout}")
     private int timeout;
 
+    public UserInfo pingUser(String userName, String ipAddress) throws IOException {
+        InetAddress[] address = InetAddress.getAllByName(ipAddress);
+        boolean isReachable = address[0].isReachable(timeout);
+        return new UserInfo(userName, ipAddress, isReachable);
+    }
+
+    /**
+     * This method useful if CPU on host machine > 1
+     *
+     * @param usersConfigMapNameHost - map where key - userName, value - userIp
+     * @return - List of user information
+     * @throws IOException
+     */
     public List<UserInfo> pingUsers(Map<String, String> usersConfigMapNameHost) throws IOException {
 
         List<UserInfo> result = new ArrayList<>();
