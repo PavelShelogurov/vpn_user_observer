@@ -1,8 +1,8 @@
 package home.project.healthchecker.controller;
 
-import home.project.healthchecker.config.UsersInfoConfig;
 import home.project.healthchecker.models.UserInfo;
-import home.project.healthchecker.service.UsersPinger;
+import home.project.healthchecker.service.HealthCheckService;
+import home.project.healthchecker.service.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -20,31 +19,25 @@ import java.util.Set;
 public class HealthCheckController {
 
     @Autowired
-    private UsersInfoConfig usersInfoConfig;
-    @Autowired
-    private UsersPinger usersPinger;
+    private HealthCheckService healthCheckService;
 
     @GetMapping("/users")
     @CrossOrigin()
-    public Set<String> getAllUsers() {
-        return usersInfoConfig.getUser().keySet();
+    public ResponseEntity<Set<String>> getAllUsers() {
+        return new ResponseEntity<>(healthCheckService.getAllUsers(), HttpStatus.OK);
     }
 
     @GetMapping("/users/{name}")
     @CrossOrigin()
-    public ResponseEntity<UserInfo> checkActiveUsers(@PathVariable String name) {
-        if (!usersInfoConfig.getUser().containsKey(name)) {
-            return new ResponseEntity<>(new UserInfo("Unknown user", "Unknown user", false),
-                    HttpStatus.NOT_FOUND);
-        }
-
+    public ResponseEntity<UserInfo> checkUser(@PathVariable String name) {
         try {
-
-            UserInfo userInfo = usersPinger.pingUser(name, usersInfoConfig.getUser().get(name));
+            UserInfo userInfo = healthCheckService.getUserInfo(name);
             return new ResponseEntity<>(userInfo, HttpStatus.OK);
-
+        } catch (UserNotFoundException e) {
+            UserInfo errorUserInfo = new UserInfo(e.getMessage(), null, false);
+            return new ResponseEntity<>(errorUserInfo, HttpStatus.NOT_FOUND);
         } catch (IOException e) {
-            return new ResponseEntity<>(new UserInfo("Error", e.getMessage(), false), HttpStatus.I_AM_A_TEAPOT);
+            return new ResponseEntity<>(null, HttpStatus.I_AM_A_TEAPOT);
         }
     }
 
@@ -52,11 +45,10 @@ public class HealthCheckController {
     @CrossOrigin()
     public ResponseEntity<List<UserInfo>> checkActiveUsers() {
         try {
-            List<UserInfo> userInfo = usersPinger.pingUsers(usersInfoConfig.getUser());
-            return new ResponseEntity<>(userInfo, HttpStatus.OK);
+            List<UserInfo> usersInfo = healthCheckService.getInfoAboutAllUsers();
+            return new ResponseEntity<>(usersInfo, HttpStatus.OK);
         } catch (IOException e) {
-            List<UserInfo> errorInfo = Collections.singletonList(new UserInfo("Error", e.getMessage(), false));
-            return new ResponseEntity<> (errorInfo, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.I_AM_A_TEAPOT);
         }
     }
 }
