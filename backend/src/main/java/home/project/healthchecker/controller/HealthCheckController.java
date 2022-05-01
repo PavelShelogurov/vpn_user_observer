@@ -34,7 +34,7 @@ public class HealthCheckController {
             UserInfo userInfo = healthCheckService.getUserInfo(name);
             return new ResponseEntity<>(userInfo, HttpStatus.OK);
         } catch (UserNotFoundException e) {
-            UserInfo errorUserInfo = new UserInfo(e.getMessage(), null, false);
+            UserInfo errorUserInfo = new UserInfo(name, e.getMessage(), false);
             return new ResponseEntity<>(errorUserInfo, HttpStatus.NOT_FOUND);
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.I_AM_A_TEAPOT);

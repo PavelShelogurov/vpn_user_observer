@@ -1,45 +1,65 @@
-var backendHost = 'http://localhost:8080/health'; //На ПРОМ сервере указать адрес сервера где развернут бэк
+var backendHost = 'http://localhost:8080';
+var path_checkAllUsersGroup = '/users-health';
+var path_users = '/users/';
 var activeSymbol = '&#9989;';
 var passiveSymbol = '&#10060;';
+var loadingSymbol = '&#128260;';
 
 function checkActiveUsers() {
-    var request = new XMLHttpRequest();
 
-    let response = fetch(backendHost);
-    response.then(
-        response => {
-            response.json().then(
-                json => {
-                    deleteLoading();
-                    var arrayLength = json.length;
-                    for (var i = 0; i < arrayLength; i++) {
-                        drawUsersBlock(json[i]);
-                    }
+    // поиск всех пользователей
+    let getAllUsers = fetch(backendHost + path_users);
+    getAllUsers.then(response => {
+        response.json().then(userNames => {
+            deleteLoadingLogo();
+            //рисуем состояние загрузки для каждого элемента
+            userNames.forEach(userName => drawLoadingUserBlock(userName));
+            //проверяем состояние каждого пользователя
+            userNames.forEach(userName => updateUserStatus(userName));
 
-                }
-            )
-
-        }
-    ).catch(
-        error => {
-            deleteLoading();
+        }).catch(error => {
+            deleteLoadingLogo();
             fatalError();
-        }
-    )
+        });
+    }).catch(error => {
+        deleteLoadingLogo();
+        fatalError();
+    })
+
+
 }
 
-function deleteLoading(){
-    document.getElementById('loadingGIF').remove();
+function deleteLoadingLogo(){
+    document.getElementById('loading').remove();
 }
 
-function drawUsersBlock(userInfo) {
+function drawLoadingUserBlock(userName) {
     var lastElement = document.getElementById('mainContainer').lastChild;
 
     var userDiv = document.createElement('div');
     userDiv.className = 'user';
-    userDiv.innerHTML = `<strong>${userInfo.name.toUpperCase()}</strong>: ${userInfo.ip} status: ${userInfo.isActive ? activeSymbol : passiveSymbol}`
+    userDiv.id = userName;
+    userDiv.innerHTML = `<strong>${userName.toUpperCase()}</strong> status: ${loadingSymbol}`;
 
     lastElement.after(userDiv);
+}
+
+function drawUsersBlock(userInfo) {
+
+    var userDiv = document.getElementById(userInfo.name);
+    userDiv.innerHTML = `<strong>${userInfo.name.toUpperCase()}</strong>: ${userInfo.ip} status: ${userInfo.isActive ? activeSymbol : passiveSymbol}`
+
+}
+
+function updateUserStatus(userName) {
+    fetch(backendHost + path_users + userName)
+        .then(response => {
+            response.json().then(
+                json => {
+                    drawUsersBlock(json);
+                }
+            )
+        })
 }
 
 function fatalError() {
