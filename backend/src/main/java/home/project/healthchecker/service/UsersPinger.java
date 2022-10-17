@@ -1,5 +1,6 @@
 package home.project.healthchecker.service;
 
+import home.project.healthchecker.models.UserDescription;
 import home.project.healthchecker.models.UserInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,10 +19,10 @@ public class UsersPinger {
     @Value("${health.check.timeout}")
     private int timeout;
 
-    public UserInfo pingUser(String userName, String ipAddress) throws IOException {
-        InetAddress[] address = InetAddress.getAllByName(ipAddress);
+    public UserInfo pingUser(UserDescription user) throws IOException {
+        InetAddress[] address = InetAddress.getAllByName(user.ip());
         boolean isReachable = address[0].isReachable(timeout);
-        return new UserInfo(userName, ipAddress, isReachable);
+        return new UserInfo(user.name(), user.ip(), isReachable, user.description());
     }
 
     /**
@@ -31,20 +32,20 @@ public class UsersPinger {
      * @return - List of user information
      * @throws IOException
      */
-    public List<UserInfo> pingUsers(Map<String, String> usersConfigMapNameHost) throws IOException {
+    public List<UserInfo> pingUsers(List<UserDescription> users) throws IOException {
 
         List<UserInfo> result = new ArrayList<>();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(usersConfigMapNameHost.size());
+        ExecutorService executorService = Executors.newFixedThreadPool(users.size());
 
-        usersConfigMapNameHost.forEach((hostName, ipAddress) -> {
+        users.forEach(user -> {
             executorService.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        InetAddress[] address = InetAddress.getAllByName(ipAddress);
+                        InetAddress[] address = InetAddress.getAllByName(user.ip());
                         boolean isReachable = address[0].isReachable(timeout);
-                        result.add(new UserInfo(hostName, ipAddress, isReachable));
+                        result.add(new UserInfo(user.name(), user.ip(), isReachable, user.description()));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

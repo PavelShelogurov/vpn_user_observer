@@ -14,7 +14,7 @@
 	<name>health-checker</name>
 	<description>Application for pinging users in network</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>

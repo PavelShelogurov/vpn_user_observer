@@ -1,5 +1,8 @@
 package home.project.healthchecker.controller;
 
+import home.project.healthchecker.exceptions.FindUserInfoException;
+import home.project.healthchecker.exceptions.RefreshStorageException;
+import home.project.healthchecker.models.UserDescription;
 import home.project.healthchecker.models.UserInfo;
 import home.project.healthchecker.service.HealthCheckService;
 import home.project.healthchecker.service.UserNotFoundException;
@@ -13,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 public class HealthCheckController {
@@ -23,8 +25,12 @@ public class HealthCheckController {
 
     @GetMapping("/users")
     @CrossOrigin()
-    public ResponseEntity<Set<String>> getAllUsers() {
-        return new ResponseEntity<>(healthCheckService.getAllUsers(), HttpStatus.OK);
+    public ResponseEntity<?> getAllUsers() {
+        try {
+            return new ResponseEntity<>(healthCheckService.getUsersName(), HttpStatus.OK);
+        } catch (FindUserInfoException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.I_AM_A_TEAPOT);
+        }
     }
 
     @GetMapping("/users/{name}")
@@ -49,6 +55,17 @@ public class HealthCheckController {
             return new ResponseEntity<>(usersInfo, HttpStatus.OK);
         } catch (IOException e) {
             return new ResponseEntity<>(null, HttpStatus.I_AM_A_TEAPOT);
+        }
+    }
+
+    @GetMapping("/refresh/users")
+    @CrossOrigin
+    public ResponseEntity<?> updateUsersInfo(){
+        try {
+            List<UserInfo> userInfos = healthCheckService.hardUpdateUsersInfo();
+            return new ResponseEntity<>(userInfos, HttpStatus.OK);
+        } catch (RefreshStorageException | IOException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.I_AM_A_TEAPOT);
         }
     }
 }

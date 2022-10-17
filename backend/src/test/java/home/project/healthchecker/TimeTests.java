@@ -1,6 +1,5 @@
 package home.project.healthchecker;
 
-import home.project.healthchecker.config.UsersInfoConfig;
 import home.project.healthchecker.models.UserInfo;
 import home.project.healthchecker.service.UsersPinger;
 import org.junit.jupiter.api.Test;
