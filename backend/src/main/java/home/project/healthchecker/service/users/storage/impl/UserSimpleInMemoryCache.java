@@ -3,7 +3,7 @@ package home.project.healthchecker.service.users.storage.impl;
 import home.project.healthchecker.exceptions.FindUserInfoException;
 import home.project.healthchecker.exceptions.RefreshStorageException;
 import home.project.healthchecker.models.UserDescription;
-import home.project.healthchecker.service.users.finder.FindUserDescription;
+import home.project.healthchecker.service.users.operation.search.FindUserDescription;
 import home.project.healthchecker.service.users.storage.UserStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +29,12 @@ public class UserSimpleInMemoryCache implements UserStorage {
 
     public UserSimpleInMemoryCache(FindUserDescription findUserDescription) throws RefreshStorageException {
         this.findUserDescription = findUserDescription;
-        try {
-            updateUserCache();
-        } catch (FindUserInfoException e) {
-            LOGGER.error("Error while refresh in memory user cache", e);
-            throw new RefreshStorageException("Error while refresh in memory user cache", e);
-        }
+//        try {
+//            updateUserCache();
+//        } catch (FindUserInfoException e) {
+//            LOGGER.error("Error while refresh in memory user cache", e);
+//            throw new RefreshStorageException("Error while refresh in memory user cache", e);
+//        }
     }
 
 
