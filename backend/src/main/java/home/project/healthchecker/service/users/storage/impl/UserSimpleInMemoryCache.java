@@ -87,6 +87,12 @@ public class UserSimpleInMemoryCache implements UserStorage {
         }
     }
 
+    @Override
+    public UserDescription save(UserDescription userDescription) {
+        //todo complete method
+        return userDescription;
+    }
+
     /**
      * If diff between current time and cache update time more then updateCachePeriod return false
      * @return if false - update cache, if true don't update

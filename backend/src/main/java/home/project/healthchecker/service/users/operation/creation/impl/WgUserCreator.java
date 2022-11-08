@@ -8,6 +8,7 @@ import home.project.healthchecker.models.WgKeys;
 import home.project.healthchecker.service.users.operation.creation.CreateUser;
 import home.project.healthchecker.service.users.operation.creation.IpGenerator;
 import home.project.healthchecker.service.users.operation.creation.WgManager;
+import home.project.healthchecker.service.users.storage.UserStorage;
 import home.project.healthchecker.utils.ini.IniParser;
 import home.project.healthchecker.utils.ini.IniSection;
 import org.slf4j.Logger;
@@ -47,10 +48,12 @@ public class WgUserCreator implements CreateUser {
 
     private IpGenerator ipGenerator;
     private WgManager wgManager;
+    private UserStorage userStorage;
 
-    public WgUserCreator(IpGenerator ipGenerator, WgManager wgManager) {
+    public WgUserCreator(IpGenerator ipGenerator, WgManager wgManager, UserStorage userStorage) {
         this.ipGenerator = ipGenerator;
         this.wgManager = wgManager;
+        this.userStorage = userStorage;
     }
 
     @Override
@@ -63,7 +66,7 @@ public class WgUserCreator implements CreateUser {
 
         wgManager.restartWgDemon();
 
-        //todo add description of new user to description storage (file or db - by interface)
+        userStorage.save(new UserDescription(peerIp, request.name(), request.description()));
 
         return generateUserResult(wgKeys.privateKey(), peerIp, request);
     }
