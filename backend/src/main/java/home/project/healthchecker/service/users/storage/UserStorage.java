@@ -29,6 +29,13 @@ public interface UserStorage {
      * @return Optional<UserDescription>
      */
     Optional<UserDescription> findByName(String name);
+
+    /**
+     * Save user description of new user
+     * @param userDescription - description
+     * @return - saved copy of userDescription
+     */
+    UserDescription save(UserDescription userDescription);
     /**
      * Hard refresh user storage info
      */
